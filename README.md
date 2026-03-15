@@ -34,7 +34,7 @@ El proyecto original ha sido creado con Next.js y usa PWA para poder instalarlo 
 
 | Plataforma | Estado |
 |-----------|--------|
-| Android (.apk) | [Última versión →](https://github.com/wanxiturro/vex-tasa-libre/releases) |
+| Android (.apk) | [Última versión →](https://github.com/wanxiturro/vex-tasa-libre-flutter/releases) |
 | iOS | Instalación local →|
 
 ## 🛠️ Instalación en local
