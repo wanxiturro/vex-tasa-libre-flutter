@@ -22,10 +22,12 @@ El proyecto original ha sido creado con Next.js y usa PWA para poder instalarlo 
 
 ## 📸 Capturas de pantalla 
 
-![1](assets/readme/1.jpg)
-![2](assets/readme/2.jpg)
-![3](assets/readme/3.jpg)
-![4](assets/readme/4.jpg)
+<div align="center">
+  <img src="assets/readme/1.jpg" width="200" />
+  <img src="assets/readme/2.jpg" width="200" />
+  <img src="assets/readme/3.jpg" width="200" />
+  <img src="assets/readme/4.jpg" width="200" />
+</div>
 
 ## ✨ Funcionalidades
 
