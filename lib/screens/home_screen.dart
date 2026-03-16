@@ -206,7 +206,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   
-    final rates = _tasasData?['rates'] as Map<String, double>? ?? {};
+    final ratesRaw = _tasasData?['rates'];
+    final rates = ratesRaw != null
+    ? Map<String, double>.from(ratesRaw as Map)
+    : <String, double>{};
     final fechaActualizacion = _tasasData?['fecha'] ?? '';
     final hasCustomRates = _tasasData?['hasCustomRates'] ?? false;
   

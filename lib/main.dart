@@ -4,7 +4,7 @@ import 'data/services/tasa_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await TasaService().initCustomRates(); // 👈 esto carga las tasas guardadas
+  await TasaService().initCustomRates(); 
   runApp(const MyApp());
 }
 
