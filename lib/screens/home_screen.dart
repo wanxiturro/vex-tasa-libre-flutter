@@ -92,21 +92,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void _actualizarConversion() {
     if (_tasasData == null) return;
     
-    final rates = _tasasData!['rates'] as Map<String, double>;
+    final ratesRaw = _tasasData!['rates'];
+    final rates = Map<String, double>.from(ratesRaw as Map);
     final amount = double.tryParse(_amountController.text) ?? 1;
     
-    if (rates.containsKey(_selectedCurrency)) {
-      setState(() {
-        _conversionResult = amount * rates[_selectedCurrency]!;
-      });
-    }
-
-    final customRates = _tasaService.getCustomRates();
-    if (customRates.containsKey(_selectedCurrency)){
-      setState(() {
-        _conversionResult = amount * customRates[_selectedCurrency]!;
-      });
-    }
+    // 👇 Buscar en rates primero, luego en personalizadas
+    final tasa = rates[_selectedCurrency] 
+        ?? _tasaService.getCustomRates()[_selectedCurrency] 
+        ?? 0;
+  
+    setState(() {
+      _conversionResult = amount * tasa;
+    });
   }
 
   String _getSimboloMoneda(String moneda) {

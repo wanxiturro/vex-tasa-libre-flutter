@@ -155,6 +155,12 @@ class TasaService {
       debugPrint('❌ pydolarve: $e');
     }
 
+    if (!tasas.containsKey('USDT') && tasas.containsKey('Paralelo')) {
+      tasas['USDT'] = tasas['Paralelo']!;
+    }
+
+    tasas.remove('Paralelo');
+
     // — Respaldo —
     if (tasas.isEmpty) {
       return _obtenerDatosRespaldo();
