@@ -1,4 +1,4 @@
-# Cómo contribuir a Vex
+# ¿Cómo contribuir a Vex?
 
 1. Haz **fork** del repositorio
 2. Crea una rama descriptiva: `git checkout -b fix/mi-cambio`
