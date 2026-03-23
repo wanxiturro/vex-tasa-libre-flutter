@@ -1,4 +1,6 @@
 // lib/screens/home_screen.dart
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -7,6 +9,9 @@ import '../data/models/tasa_models.dart';
 import '../widgets/custom_rate_dialog.dart';
 import '../widgets/custom_rate_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import '../data/providers/theme_provider.dart';
+import '../widgets/custom_color_buttom.dart';
 
 class HomeScreen extends StatefulWidget {
   final Future<Map<String, dynamic>>? preloadFuture;
@@ -95,8 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final ratesRaw = _tasasData!['rates'];
     final rates = Map<String, double>.from(ratesRaw as Map);
     final amount = double.tryParse(_amountController.text) ?? 1;
-    
-    // 👇 Buscar en rates primero, luego en personalizadas
+
     final tasa = rates[_selectedCurrency] 
         ?? _tasaService.getCustomRates()[_selectedCurrency] 
         ?? 0;
@@ -104,6 +108,25 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _conversionResult = amount * tasa;
     });
+  }
+
+  void _showCustomizationMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Color(0xFF1E1F24),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: const CustomColorButton(),
+      ),
+    );
   }
 
   String _getSimboloMoneda(String moneda) {
@@ -121,16 +144,31 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 22, 21, 25),
-      appBar: _buildAppBar(),
-      body: _buildBody(),
+      backgroundColor: themeProvider.backgroundColor,
+      appBar: _buildAppBar(themeProvider),
+      body: _buildBody(themeProvider),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showCustomizationMenu(context);
+        },
+        backgroundColor: const Color.fromARGB(255, 77, 170, 2),
+        shape: const CircleBorder(),
+        child: const Icon(
+          Icons.palette,
+          color: Colors.white,
+          size: 28,
+        ), // Esto asegura que sea redondo
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider) {
     return AppBar(
-      backgroundColor: const Color.fromARGB(255, 28, 27, 32),
+      backgroundColor: themeProvider.appBarColor,
       elevation: 0,
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -169,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(ThemeProvider themeProvider) {
     if (_isLoading && _tasasData == null) {
       return const Center(
         child: CircularProgressIndicator(
@@ -242,6 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         _actualizarConversion();
                       });
                     },
+                    themeProvider: themeProvider,
                   ),
                   const SizedBox(width: 8),
                   _buildTab('Euro BCV',
@@ -252,6 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         _actualizarConversion();
                       });
                     },
+                    themeProvider: themeProvider
                   ),
                   const SizedBox(width: 8),
                   _buildTab('USDT',
@@ -262,6 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         _actualizarConversion();
                       });
                     },
+                    themeProvider: themeProvider
                   ),
                   ..._tasaService.getCustomRates().entries.map((entry) {
                     return Row(
@@ -273,7 +314,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             onTap: () => setState(() {
                               _selectedCurrency = entry.key;
                               _actualizarConversion();
-                            })
+                            }),
+                            themeProvider: themeProvider
                           )
                         ],
                       );
@@ -287,6 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         _showCustomRatesMenu = !_showCustomRatesMenu;
                       });
                     },
+                    themeProvider: themeProvider
                   ),
                 ],
               ),
@@ -294,12 +337,11 @@ class _HomeScreenState extends State<HomeScreen> {
             
             const SizedBox(height: 24),
             
-            // Mostrar menú de tasas personalizadas si está activado
             if (_showCustomRatesMenu) ...[
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1F24),
+                  color: themeProvider.rateCardColor,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: const Color.fromARGB(255, 77, 170, 2).withOpacity(0.3),
@@ -310,17 +352,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           'Tasas Personalizadas',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: themeProvider.textColor
                           ),
                         ),
                         const Spacer(),
                         IconButton(
-                          icon: const Icon(Icons.add, color: Color.fromARGB(255, 77, 170, 2)),
+                          icon: Icon(Icons.add, color: themeProvider.converterCardColor),
                           onPressed: () => _showAddCustomRateDialog(),
                         ),
                       ],
@@ -337,19 +379,19 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
             
             // Converter card
-            _buildConverterCard(rates),
+            _buildConverterCard(rates, themeProvider),
             
             const SizedBox(height: 24),
             
             // All rates section
             Row(
               children: [
-                const Text(
+                Text(
                   'Todas las tasas',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: themeProvider.textColor,
                   ),
                 ),
                 const Spacer(),
@@ -376,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Incluye personalizadas',
                           style: TextStyle(
                             fontSize: 10,
-                            color: Colors.grey[400],
+                            color: themeProvider.secondaryTextColor,
                           ),
                         ),
                       ],
@@ -388,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 28, 27, 32),
+                    color: themeProvider.backgroundColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -410,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         _tasasData?['source'] ?? 'local',
                         style: TextStyle(
                           fontSize: 10,
-                          color: Colors.grey[600],
+                          color: themeProvider.secondaryTextColor,
                         ),
                       ),
                     ],
@@ -425,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen> {
               fechaActualizacion,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: themeProvider.secondaryTextColor,
               ),
             ),
             
@@ -444,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
               
               return Column(
                 children: [
-                  _buildRateCard(model),
+                  _buildRateCard(model, themeProvider),
                   const SizedBox(height: 12),
                 ],
               );
@@ -466,12 +508,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Texto principal centrado con "código abierto" en negrita
                     RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: const TextStyle(
-                          color: Colors.white60,
+                        style: TextStyle(
+                          color: themeProvider.secondaryTextColor,
                           fontSize: 13,
                           height: 1.4,
                           fontWeight: FontWeight.w200,
@@ -481,11 +522,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           const TextSpan(
                             text: "Proyecto de ",
                           ),
-                          const TextSpan(
+                          TextSpan(
                             text: "código abierto",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(103, 255, 255, 255), // Un poco más brillante
+                              color: themeProvider.secondaryTextColor, // Un poco más brillante
                             ),
                           ),
                           const TextSpan(
@@ -497,7 +538,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 12),
 
-                    // Botón funcional centrado
                     GestureDetector(
                       onTap: () async {
                         final Uri url = Uri.parse('https://github.com/wanxiturro/vex-tasa-libre-flutter');
@@ -556,14 +596,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildConverterCard(Map<String, double> rates) {
+  Widget _buildConverterCard(Map<String, double> rates, ThemeProvider themeProvider) {
     final tasaActual = rates[_selectedCurrency] ?? _tasaService.getCustomRates()[_selectedCurrency] ?? 0;
     final simbolo = _getSimboloMoneda(_selectedCurrency);
     
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 91, 165, 35),
+        color: themeProvider.converterCardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -584,7 +624,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 70, 134, 21),
+              color: themeProvider.lineCardColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -667,7 +707,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 70, 134, 21),
+              color: themeProvider.lineCardColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -696,15 +736,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTab(String text, {required bool isSelected, required VoidCallback onTap}) {
+  Widget _buildTab(String text, {required bool isSelected, required VoidCallback onTap, required ThemeProvider themeProvider}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected 
-              ? const Color.fromARGB(255, 91, 165, 35) 
-              : const Color(0xFF1E1F24),
+            ? themeProvider.converterCardColor
+            : themeProvider.rateCardColor,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -720,11 +760,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRateCard(TasaModel model) {
+  Widget _buildRateCard(TasaModel model, ThemeProvider themeProvider) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1F24),
+        color: themeProvider.rateCardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -754,10 +794,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       model.nombre,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                        color: themeProvider.textColor,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -780,10 +820,10 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 model.precioUSD,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
+                  color: themeProvider.textColor,
                 ),
               ),
               const SizedBox(height: 2),
