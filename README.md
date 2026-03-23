@@ -65,4 +65,4 @@ flutter run
 
 ## 📄 Licencia
 
-MIT © 2024 — Impulsando software libre en Venezuela.
+MIT © 2026 — Impulsando software libre en Venezuela.
