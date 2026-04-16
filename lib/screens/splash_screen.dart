@@ -1,5 +1,3 @@
-// El lottie (Animación) gira en la dirección incorrecta, espero poder cambiarlo en un futuro no tan lejano.
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -14,7 +12,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+  with SingleTickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -25,7 +23,6 @@ class SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Controlador para la animación de fade
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -40,7 +37,7 @@ class SplashScreenState extends State<SplashScreen>
     ));
 
     Timer(const Duration(milliseconds: 1500), () {
-      _fadeController.forward(); // Inicia el desvanecimiento6
+      _fadeController.forward();
     });
 
     Timer(const Duration(milliseconds: 2000), () {

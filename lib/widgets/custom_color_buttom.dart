@@ -43,7 +43,7 @@ class _CustomColorButtonState extends State<CustomColorButton> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header con ícono y título
+
           Row(
             children: [
               Container(
@@ -83,7 +83,7 @@ class _CustomColorButtonState extends State<CustomColorButton> {
                   ],
                 ),
               ),
-              // Botón para resetear
+
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.1),
@@ -110,7 +110,6 @@ class _CustomColorButtonState extends State<CustomColorButton> {
           
           const SizedBox(height: 24),
           
-          // Sección: Modo Oscuro/Claro
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -149,7 +148,7 @@ class _CustomColorButtonState extends State<CustomColorButton> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Switch elegante para cambiar entre oscuro/claro
+
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
@@ -182,7 +181,6 @@ class _CustomColorButtonState extends State<CustomColorButton> {
           
           const SizedBox(height: 20),
           
-          // Sección: Color del card del dólar
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -222,7 +220,6 @@ class _CustomColorButtonState extends State<CustomColorButton> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Vista previa del color actual
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
@@ -266,8 +263,7 @@ class _CustomColorButtonState extends State<CustomColorButton> {
                 ),
                 
                 const SizedBox(height: 20),
-                
-                // Selector de colores
+              
                 const Text(
                   'Elige un color',
                   style: TextStyle(
@@ -277,7 +273,6 @@ class _CustomColorButtonState extends State<CustomColorButton> {
                 ),
                 const SizedBox(height: 12),
                 
-                // Paleta de colores predefinidos
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
@@ -337,7 +332,6 @@ class _CustomColorButtonState extends State<CustomColorButton> {
                 
                 const SizedBox(height: 16),
                 
-                // Botón para selector personalizado
                 GestureDetector(
                   onTap: () async {
                     final Color? pickedColor = await showDialog<Color>(
@@ -439,7 +433,6 @@ class _CustomColorButtonState extends State<CustomColorButton> {
           
           const SizedBox(height: 16),
           
-          // Mensaje de ayuda
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -560,7 +553,6 @@ class _CustomColorButtonState extends State<CustomColorButton> {
   }
 }
 
-// Selector de color simple
 class SimpleColorPicker extends StatelessWidget {
   final Color color;
   final Function(Color) onColorChanged;
@@ -575,7 +567,6 @@ class SimpleColorPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Selector de matiz (Hue)
         Container(
           height: 40,
           decoration: BoxDecoration(

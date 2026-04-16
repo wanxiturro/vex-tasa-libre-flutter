@@ -2,7 +2,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import '../data/services/tasa_service.dart';
 import '../data/models/tasa_models.dart';
@@ -28,12 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   
-  // Variables para el conversor
   String _selectedCurrency = 'USD';
   final TextEditingController _amountController = TextEditingController(text: '1');
   double _conversionResult = 0;
   
-  // Tasas anteriores para calcular cambios
   final Map<String, double> _tasasAnteriores = {};
 
   bool _showCustomRatesMenu = false;
@@ -42,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _cargarTasas();
-    // Actualizar cada 5 minutos
     Timer.periodic(const Duration(minutes: 5), (timer) {
       if (mounted) {
         _cargarTasas();
@@ -154,13 +150,13 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           _showCustomizationMenu(context);
         },
-        backgroundColor: const Color.fromARGB(255, 77, 170, 2),
+        backgroundColor: themeProvider.converterCardColor,
         shape: const CircleBorder(),
         child: const Icon(
           Icons.palette,
           color: Colors.white,
           size: 28,
-        ), // Esto asegura que sea redondo
+        ), 
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -267,7 +263,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Currency tabs
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -377,13 +372,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 24),
             ],
-            
-            // Converter card
+
             _buildConverterCard(rates, themeProvider),
             
             const SizedBox(height: 24),
             
-            // All rates section
             Row(
               children: [
                 Text(
@@ -473,8 +466,6 @@ class _HomeScreenState extends State<HomeScreen> {
             
             const SizedBox(height: 16),
             
-            // Rates list
-            
             ...entradasOrdenadas.map((entry) {
               final tasaAnterior = _tasasAnteriores[entry.key] ?? entry.value;
               final model = TasaModel.fromData(
@@ -526,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             text: "código abierto",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: themeProvider.secondaryTextColor, // Un poco más brillante
+                              color: themeProvider.secondaryTextColor,
                             ),
                           ),
                           const TextSpan(
@@ -553,7 +544,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           }
                         } catch (e) {
-                          debugPrint('Error al abrir URL: $e');
+                          debugPrint('Error al abrir URL, intentalo más tarde.');
                         }
                       },
                       child: Container(
@@ -620,7 +611,6 @@ class _HomeScreenState extends State<HomeScreen> {
           
           const SizedBox(height: 7),
           
-          // Input
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -663,7 +653,6 @@ class _HomeScreenState extends State<HomeScreen> {
           
           const SizedBox(height: 7),
           
-          // Rate
           Container(
             padding: const EdgeInsets.all(1),
             child: Row(
@@ -702,8 +691,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
                 
           const SizedBox(height: 5),
-          
-          // Result
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             decoration: BoxDecoration(
@@ -769,7 +757,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Row(
         children: [
-          // Icon
+
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -785,7 +773,6 @@ class _HomeScreenState extends State<HomeScreen> {
           
           const SizedBox(width: 12),
           
-          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -814,7 +801,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           
-          // Price
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -840,7 +826,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   @override
   void dispose() {
