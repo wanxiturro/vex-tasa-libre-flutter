@@ -4,7 +4,6 @@
   # Vex — Tasa Libre de Venezuela
   
   Consulta tasas del dólar, euro, paralelo y personalizadas en tiempo real en tu móvil.
-
   [www.vextasalibre.com](https://wanxiturro.github.io/Vex/)
 
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey)
