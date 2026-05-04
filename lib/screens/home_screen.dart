@@ -9,10 +9,8 @@ import '../widgets/custom_rate_dialog.dart';
 import '../widgets/custom_rate_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../data/providers/theme_provider.dart';
 import '../widgets/custom_color_buttom.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   final Future<Map<String, dynamic>>? preloadFuture;
@@ -32,18 +30,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedCurrency = 'USD';
   final TextEditingController _amountController = TextEditingController(text: '1');
   double _conversionResult = 0;
-  double _foreignAmount = 0;
-  final TextEditingController _bsController = TextEditingController(text: '0.00');
   
   final Map<String, double> _tasasAnteriores = {};
 
   bool _showCustomRatesMenu = false;
-  bool _hasVotedToday = false;
 
   @override
   void initState() {
     super.initState();
-    _loadVoteStatus();
     _cargarTasas();
     Timer.periodic(const Duration(minutes: 5), (timer) {
       if (mounted) {
@@ -73,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         _tasasData = data;
         _isLoading = false;
-        _updateConversions();
+        _actualizarConversion();
       });
     } catch (e) {
       setState(() {
@@ -96,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _updateConversions() {
+  void _actualizarConversion() {
     if (_tasasData == null) return;
     
     final ratesRaw = _tasasData!['rates'];
@@ -109,74 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
   
     setState(() {
       _conversionResult = amount * tasa;
-      _foreignAmount = amount;
-      _bsController.text = _conversionResult.toStringAsFixed(2);
     });
-  }
-
-  void _updateFromBs() {
-    if (_tasasData == null) return;
-    
-    final ratesRaw = _tasasData!['rates'];
-    final rates = Map<String, double>.from(ratesRaw as Map);
-    final bsAmount = double.tryParse(_bsController.text) ?? 0;
-
-    final tasa = rates[_selectedCurrency] 
-        ?? _tasaService.getCustomRates()[_selectedCurrency] 
-        ?? 0;
-  
-    setState(() {
-      _conversionResult = bsAmount;
-      _foreignAmount = tasa > 0 ? bsAmount / tasa : 0;
-      _amountController.text = _foreignAmount.toStringAsFixed(2);
-    });
-  }
-
-  String _getTodayKey() {
-    return DateTime.now().toIso8601String().split('T')[0];
-  }
-
-  Future<void> _loadVoteStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedDate = prefs.getString('last_vote_date');
-    final todayKey = _getTodayKey();
-
-    if (mounted) {
-      setState(() {
-        _hasVotedToday = savedDate == todayKey;
-      });
-    }
-  }
-
-  Future<void> _vote(bool isUp) async {
-    if (_hasVotedToday) return;
-
-    final todayKey = _getTodayKey();
-    final docRef = FirebaseFirestore.instance.collection('votes').doc(todayKey);
-
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      final snapshot = await transaction.get(docRef);
-      if (!snapshot.exists) {
-        transaction.set(docRef, {'up': isUp ? 1 : 0, 'down': isUp ? 0 : 1});
-      } else {
-        final data = snapshot.data()!;
-        final up = data['up'] ?? 0;
-        final down = data['down'] ?? 0;
-        transaction.update(docRef, {
-          'up': up + (isUp ? 1 : 0),
-          'down': down + (isUp ? 0 : 1),
-        });
-      }
-    });
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('last_vote_date', todayKey);
-
-    if (mounted) {
-      setState(() {
-        _hasVotedToday = true;
-      });
-    }
   }
 
   void _showCustomizationMenu(BuildContext context) {
@@ -345,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       setState(() {
                         _selectedCurrency = 'USD';
-                        _updateConversions();
+                        _actualizarConversion();
                       });
                     },
                     themeProvider: themeProvider,
@@ -356,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       setState(() {
                         _selectedCurrency = 'EUR';
-                        _updateConversions();
+                        _actualizarConversion();
                       });
                     },
                     themeProvider: themeProvider
@@ -367,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       setState(() {
                         _selectedCurrency = 'USDT';
-                        _updateConversions();
+                        _actualizarConversion();
                       });
                     },
                     themeProvider: themeProvider
@@ -381,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             isSelected: _selectedCurrency == entry.key, 
                             onTap: () => setState(() {
                               _selectedCurrency = entry.key;
-                              _updateConversions();
+                              _actualizarConversion();
                             }),
                             themeProvider: themeProvider
                           )
@@ -556,10 +483,6 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }),
   
-            const SizedBox(height: 24),
-            
-            _buildPollWidget(themeProvider),
-  
             const SizedBox(height: 32),
 
             Align(
@@ -687,6 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           
           const SizedBox(height: 7),
+          
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -719,7 +643,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       contentPadding: EdgeInsets.zero,
                     ),
                     onChanged: (value) {
-                      _updateConversions();
+                      _actualizarConversion();
                     },
                   ),
                 ),
@@ -769,7 +693,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 5),
 
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             decoration: BoxDecoration(
               color: themeProvider.lineCardColor,
               borderRadius: BorderRadius.circular(12),
@@ -784,23 +708,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Color.fromARGB(150, 22, 21, 25),
                   ),
                 ),
-                Expanded(
-                  child: TextField(
-                    controller: _bsController,
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Color.fromARGB(255, 22, 21, 25),
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    onChanged: (value) {
-                      _updateFromBs();
-                    },
+                Text(
+                  _conversionResult.toStringAsFixed(2),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 22, 21, 25),
                   ),
                 ),
               ],
@@ -914,201 +827,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPollWidget(ThemeProvider themeProvider) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance.collection('votes').doc(_getTodayKey()).snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Container(); // O mostrar error
-        }
-
-        final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
-        final up = data['up'] ?? 0;
-        final down = data['down'] ?? 0;
-        final total = up + down;
-        final upPercent = total > 0 ? (up / total * 100).round() : 0;
-        final downPercent = total > 0 ? (down / total * 100).round() : 0;
-
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: themeProvider.rateCardColor,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Text('📈', style: TextStyle(fontSize: 24)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '¿El dólar subirá mañana?',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: themeProvider.textColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              if (!_hasVotedToday) ...[
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _vote(true),
-                        icon: const Icon(Icons.trending_up, color: Colors.white),
-                        label: const Text('Sí', style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade600,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _vote(false),
-                        icon: const Icon(Icons.trending_down, color: Colors.white),
-                        label: const Text('No', style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade600,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ] else ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Colors.blue.shade200.withOpacity(0.3),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle, color: Colors.blue, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        '¡Gracias por votar! Vuelve mañana.',
-                        style: TextStyle(
-                          color: themeProvider.secondaryTextColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 20),
-              Text(
-                'Resultados en tiempo real ($total votos)',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: themeProvider.secondaryTextColor,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildVoteResult(
-                label: 'Subirá',
-                percent: upPercent,
-                count: up,
-                color: Colors.green,
-                themeProvider: themeProvider,
-              ),
-              const SizedBox(height: 12),
-              _buildVoteResult(
-                label: 'No subirá',
-                percent: downPercent,
-                count: down,
-                color: Colors.red,
-                themeProvider: themeProvider,
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildVoteResult({
-    required String label,
-    required int percent,
-    required int count,
-    required Color color,
-    required ThemeProvider themeProvider,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: themeProvider.textColor,
-              ),
-            ),
-            Text(
-              '$percent% ($count)',
-              style: TextStyle(
-                fontSize: 14,
-                color: themeProvider.secondaryTextColor,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Container(
-          height: 8,
-          decoration: BoxDecoration(
-            color: themeProvider.lineCardColor,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: percent / 100,
-              backgroundColor: Colors.transparent,
-              valueColor: AlwaysStoppedAnimation<Color>(color.withOpacity(0.8)),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   void dispose() {
     _amountController.dispose();
-    _bsController.dispose();
     super.dispose();
   }
 }

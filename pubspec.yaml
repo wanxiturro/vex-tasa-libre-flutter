@@ -2,6 +2,7 @@ name: vex_tasa_libre
 description: "Vex es una aplicación web gratuita que te permite consultar al instante las principales tasas de cambio en Venezuela"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'MIT' # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -42,10 +43,6 @@ dependencies:
   shared_preferences: ^2.5.4
   url_launcher: ^6.3.2
   provider: ^6.1.5+1
-
-  # Backend
-  firebase_core: ^4.7.0  
-  cloud_firestore: ^6.3.0
 
 dev_dependencies:
   flutter_test:
