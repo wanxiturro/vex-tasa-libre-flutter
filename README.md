@@ -66,5 +66,6 @@ flutter run
 - Último recurso → Datos locales almacenados en caché
 
 ## 📄 Licencia
-
+<div align="center">
 MIT © 2026 — Impulsando software libre en Venezuela.
+</div>
