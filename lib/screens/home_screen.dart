@@ -604,55 +604,60 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
 
-                    GestureDetector(
-                      onTap: () async {
-                        final Uri url = Uri.parse('https://github.com/wanxiturro/vex-tasa-libre-flutter');
-                        try {
-                          final bool launched = await launchUrl(
-                            url,
-                            mode: LaunchMode.externalApplication,
-                          );
-                          if (!launched) {
-                            await launchUrl(
-                              url,
-                              mode: LaunchMode.platformDefault,
-                            );
-                          }
-                        } catch (e) {
-                          debugPrint('Error al abrir URL, intentalo más tarde.');
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.03),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.code,
-                              color: Colors.white.withOpacity(0.5),
-                              size: 14,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              "Ver en GitHub",
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            final Uri url = Uri.parse('https://github.com/wanxiturro/vex-tasa-libre-flutter');
+                            try {
+                              final bool launched = await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                              if (!launched) {
+                                await launchUrl(
+                                  url,
+                                  mode: LaunchMode.platformDefault,
+                                );
+                              }
+                            } catch (e) {
+                              debugPrint('Error al abrir URL, intentalo más tarde.');
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.03),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.1),
                               ),
                             ),
-                          ],
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.code,
+                                  color: Colors.white.withOpacity(0.5),
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "Ver en GitHub",
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),

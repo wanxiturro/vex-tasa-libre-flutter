@@ -5,13 +5,18 @@ import 'package:provider/provider.dart';
 import 'data/providers/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'data/firebase/firebase_options.dart';
+import 'data/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await TasaService().initCustomRates(); 
+  await TasaService().initCustomRates();
+
+  // Inicializar servicio de notificaciones
+  await NotificationService().initialize();
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
